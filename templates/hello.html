@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hello from Flask</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* Sets the font for the page */
+            background-color: #f4f4f9; /* Light grey background for the page */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; /* Full viewport height */
+            flex-direction: column; /* Stack elements vertically */
+        }
+        h1, a {
+            color: #333; /* Dark grey color for text */
+            background-color: #ffffff; /* White background for the heading */
+            padding: 20px 40px;
+            border-radius: 8px; /* Rounded corners for the heading */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow for 3D effect */
+            text-align: center;
+            text-decoration: none; /* Removes underline from links */
+            display: block; /* Makes the link behave like a block element */
+            margin-top: 20px; /* Adds space above the link */
+        }
+    </style>
+</head>
+<body>
+    {% if person %}
+        <h1>Hello {{ person }}!</h1>
+    {% else %}
+        <h1>Hello, World!</h1>
+    {% endif %}
+    <a href="/login">Log In</a>
+</body>
+</html>
+
+
