@@ -1,0 +1,25 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Change Password Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+    <div class="login">
+        <img class="pix" src="https://cdn.worldvectorlogo.com/logos/smile.svg" alt="Smile Logo" />
+        <h1>Change Password</h1>
+        {% if error %}
+            <p style="color: red;">{{ error }}</p>
+        {% endif %}
+        <form action="/new_password" method="POST">
+            <p>User Name</p>
+            <input class="pas-text" type="text" name="username" placeholder="Enter UserName" />
+            <p>Password</p>
+            <input class="pas-text" type="password" name="password" placeholder="New Password" />
+            <input class="sub-text" type="submit" value="Change Password" />
+        </form>
+    </div>
+</body>
+</html>
