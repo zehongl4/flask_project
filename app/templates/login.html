@@ -3,23 +3,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Sign Up Page</title>
+    <title>Log in Page</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
     <div class="login">
         <img class="pix" src="https://cdn.worldvectorlogo.com/logos/smile.svg" alt="Smile Logo" />
-        <h1>Sign Up</h1>
-        {% if error %}
-            <p style="color: red;">{{ error }}</p>
-        {% endif %}
-        <form action="/register_form" method="POST">
+        <h1>Login</h1>
+        {% for message in get_flashed_messages() %}
+            <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+        <form action="{{ url_for('auth.login') }}" method="POST">
+            {{ form.hidden_tag() }}  <!-- This adds the CSRF token -->
             <p>User Name</p>
             <input class="pas-text" type="text" name="username" placeholder="Enter UserName" />
             <p>Password</p>
             <input class="pas-text" type="password" name="password" placeholder="Enter Password" />
-            <input class="sub-text" type="submit" value="Register" />
+            <input class="sub-text" type="submit" value="Login" />
+            <a href="/auth/new_password">Lost your Password</a><br />
+            <a href="/auth/register">Don't Have an account</a><br />
         </form>
     </div>
 </body>
 </html>
+
