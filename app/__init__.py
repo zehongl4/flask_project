@@ -12,9 +12,8 @@ import pymysql
 
 # Initialize the Flask application
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-random-secret-key'
 
-# Set up secret key and other configuration
-app.config['SECRET_KEY'] = 'your_secret_key_here'  # Replace with your actual secret key
 
 # Initialize Flask-Bcrypt
 bcrypt = Bcrypt(app)
@@ -30,31 +29,11 @@ def conn_mysql():
         charset="utf8"
     )
 
-# Execute query and return results
-def query_data(sql, params=None):
-    conn = conn_mysql()
-    try:
-        cursor = conn.cursor(pymysql.cursors.DictCursor) 
-        cursor.execute(sql, params)
-        return cursor.fetchall()
-    finally:
-        conn.close()
 
-# Insert or update data in database
-def insert_or_update_data(sql, params=None):
-    conn = conn_mysql()
-    try:
-        cursor = conn.cursor()
-        cursor.execute(sql, params)
-        conn.commit()
-    except pymysql.Error as error:
-        print(f"Database error: {error}")
-        conn.rollback()
-    finally:
-        conn.close()
-
+print("kjkjk")
 # Register blueprints
 def create_app():
+    print("Creating app...")
     
     from app.auth.routes import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
@@ -68,5 +47,11 @@ def create_app():
     # app.register_blueprint(blog_blueprint, url_prefix='/blog')
 
     return app
+
+if __name__ == '__main__':
+    app = create_app()
+    app.run(debug=True)
+
+
 
 
