@@ -15,15 +15,19 @@ user_dao = UserDAO()  # Instantiate the DAO object
 
 @auth.route('/login', methods=['POST', 'GET'])
 def login():
-    print("aaa")
     form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
         uname = form.username.data
         pwd = form.password.data
-        if valid_login(uname, pwd):
-            return log_the_user_in(uname)
+        result = user_dao.get_user_password(uname)
+        if result:
+            if bcrypt.check_password_hash(result[0]["password"], pwd):
+                return log_the_user_in(uname)
+            else:
+                flash('Invalid username/password', 'error')
         else:
-            flash('Invalid username/password', 'error')
+            flash('Username not found', 'error')
+            
     return render_template('login.html', form=form)
 
 @auth.route('/register', methods=['GET', 'POST'])
@@ -32,11 +36,11 @@ def register():
     if request.method == 'POST' and form.validate_on_submit():
         uname = form.username.data
         pwd = form.password.data
-        if user_dao.user_exists(uname):
+        if user_dao.check_user_exist(uname):
             flash("User already exists. Choose a different username.", 'error')
         else:
             pwd_hash = bcrypt.generate_password_hash(pwd).decode('utf-8')
-            user_dao.insert_user(uname, pwd_hash)
+            user_dao.add_user(uname, pwd_hash)
             flash("User registered successfully!", 'success')
             return redirect(url_for('auth.login'))
     return render_template('register.html', form=form)
@@ -47,7 +51,7 @@ def new_password():
     if form.validate_on_submit():
         uname = form.username.data
         new_pwd = form.new_password.data
-        if not user_dao.user_exists(uname):
+        if not user_dao.check_user_exist(uname):
             flash("User doesn't exist", 'error')
         else:
             pwd_hash = bcrypt.generate_password_hash(new_pwd).decode('utf-8')
@@ -55,18 +59,6 @@ def new_password():
             flash("Password changed successfully!", 'success')
             return redirect(url_for('auth.login'))
     return render_template('modify.html', form=form)
-
-def valid_login(username, password):
-    result = user_dao.get_user_password(username)
-    if result:
-        try:
-            if bcrypt.check_password_hash(result[0]["password"], password):
-                return True
-        except ValueError as e:
-            print(f"Error checking password for user {username}: {e}")
-            flash('Password validation error, please reset your password.', 'error')
-    flash('Username not found', 'error')
-    return False
 
 def log_the_user_in(username):
     return f"Hello, {username}"  # Implement actual login logic here
