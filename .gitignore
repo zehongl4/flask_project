@@ -1,7 +1,7 @@
 .spyproject/
 # Ignore all .DS_Store files
 .DS_Store
-
+.venv/
 # Ignore Python bytecode directories
 **/__pycache__/
 __pycache__/
