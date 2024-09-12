@@ -12,11 +12,11 @@ import os
 class UserDAO:
     def __init__(self):
         # Use environment variables to determine the database settings
-        self.host = os.getenv("DB_HOST", "blogflask.cb0icek8ubb6.us-east-2.rds.amazonaws.com")
-        self.port = int(os.getenv("DB_PORT", 3306))
+        self.host = os.getenv("DB_HOST")
+        self.port = int(os.getenv("DB_PORT"))
         self.user = os.getenv("DB_USER", "xuan")
-        self.password = os.getenv("DB_PASSWORD", "Lzh!09231201")
-        self.database = os.getenv("DB_NAME", "db_blog")
+        self.password = os.getenv("DB_PASSWORD")
+        self.database = os.getenv("DB_NAME")
         self.charset = "utf8"
 
         # Initialize the database if not in local development mode
