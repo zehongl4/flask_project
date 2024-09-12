@@ -6,7 +6,8 @@ Created on Fri Aug 30 22:16:31 2024
 @author: xuan
 """
 
-from flask import Flask
+
+from flask import Flask, redirect, url_for
 from flask_bcrypt import Bcrypt
 
 # Initialize the Flask application
@@ -20,6 +21,10 @@ bcrypt = Bcrypt(app)
 from app.auth.routes import auth as auth_blueprint
 app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
+@app.route('/')
+def home():
+    return redirect(url_for('auth.login'))
+
 # Additional blueprints can be registered here
 # from app.routes import main as main_blueprint
 # app.register_blueprint(main_blueprint)
@@ -28,6 +33,7 @@ app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # app.run(debug=True, host='0.0.0.0', port=8000)
 
 
 
