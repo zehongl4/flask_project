@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Blog Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Welcome, {{ username }}!</h1>
+        </header>
+        
+        <main class="content-area"> 
+            
+            <!-- Section to display the user's blog posts -->
+            <section class="blog-posts">
+                <h2>Your Blog Posts</h2>
+                <ul>
+                    {% for post in posts %}
+                    <li>
+                        <!-- Show only the title of each post -->
+                        <a href="{{ url_for('blog.post_detail', username = username, post_id=post.id) }}">
+                            <h3>{{ post.title }}</h3>
+                        </a>
+                        <small>Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </li>
+                    {% else %}
+                    <li>No posts yet.</li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

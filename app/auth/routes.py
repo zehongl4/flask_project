@@ -8,7 +8,7 @@ Created on Fri Aug 30 22:25:01 2024
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app import bcrypt
 from .forms import LoginForm, RegistrationForm, ChangePasswordForm
-from .dao import UserDAO  # Import your DAO class
+from ..dao import UserDAO  # Import your DAO class
 
 auth = Blueprint('auth', __name__)
 user_dao = UserDAO()  # Instantiate the DAO object
@@ -38,7 +38,7 @@ def register():
         pwd = form.password.data
         if user_dao.check_user_exist(uname):
             flash("User already exists. Choose a different username.", 'error')
-        else:
+        else:       
             pwd_hash = bcrypt.generate_password_hash(pwd).decode('utf-8')
             user_dao.add_user(uname, pwd_hash)
             flash("User registered successfully!", 'success')
@@ -61,7 +61,7 @@ def new_password():
     return render_template('modify.html', form=form)
 
 def log_the_user_in(username):
-    return f"Hello, {username}"  # Implement actual login logic here
+    return redirect(url_for('blog.user_profile', username=username))
 
 
 
