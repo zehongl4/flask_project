@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
+</head>
+<body>
+    <div class="container post-detail-container">
+        <header>
+            <h1 class="post-title">{{ post.title }}</h1>
+        </header>
+
+        <!-- Main content area for the blog post -->
+        <main class="content-area post-content-area">
+            <section class="blog-content">
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                    <small class="post-date">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                </div>
+            </section>
+
+            <!-- Link back to the user's blog posts page -->
+            <div class="back-link-container">
+                <a href="{{ url_for('blog.user_profile', username=username) }}" class="back-link">Back to Blog Posts</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+

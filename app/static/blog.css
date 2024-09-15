@@ -1,0 +1,153 @@
+body {
+    margin: 0;
+    padding: 0;
+    background: url(https://images.pexels.com/photos/2108709/pexels-photo-2108709.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500) no-repeat center center fixed;
+    background-size: cover;
+    font-family: 'Arial', sans-serif;
+    color: #FFF;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    height: auto;
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 20px;
+    color: white;
+    padding: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.content-area {
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+}
+
+.new-post, .blog-posts {
+    width: 50%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.new-post input[type="text"], .new-post textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    background: transparent;
+    border: 1px solid #FFF;
+    border-radius: 10px;
+    color: white;
+}
+
+.new-post textarea {
+    height: 200px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #FF4500;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #FF6347;
+}
+
+.blog-posts ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.blog-posts li a {
+    color: #FFD700;
+    text-decoration: none;
+}
+
+.blog-posts li a:hover {
+    color: #FF4500;
+}
+
+/* General style for flash messages */
+.alert {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-align: center;
+    width: 90%;
+    margin: 0 auto;
+}
+
+/* Specific style for success messages to appear in red */
+.alert-success {
+    color: #FFF;
+    background-color: #FF6347;
+    border-color: #FF4500;
+}
+
+/* Post Detail Page Specific Styles */
+.post-title {
+    font-size: 3em;
+    margin-bottom: 20px;
+    color: #FFD700;
+    text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.7);
+}
+
+.post-content {
+    text-align: left;
+    font-size: 1.5em;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #F5F5F5;
+}
+
+.post-date {
+    font-size: 0.6em; /* Made the "posted on" text smaller */
+    color: #CCC;
+}
+
+/* Positioned Back link at the upper right of the container */
+.back-link-container {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
+.back-link {
+    font-size: 1.2em;
+    color: #FF4500; /* Changed back-link color to red */
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    color: #FFF;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Ensure that for post detail page, the container is properly styled */
+.post-detail-container {
+    max-width: 800px;
+    margin-top: 100px;
+}
+
+
+
+
+
+
