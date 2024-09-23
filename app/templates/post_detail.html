@@ -11,17 +11,14 @@
         <header>
             <h1 class="post-title">{{ post.title }}</h1>
         </header>
-
-        <!-- Main content area for the blog post -->
         <main class="content-area post-content-area">
-            <section class="blog-content">
+            <article class="blog-content">
                 <div class="post-content">
-                    <p>{{ post.content }}</p>
+                    <!-- Use the safe filter to prevent HTML escaping -->
+                    <p>{{ post.content|safe }}</p>
                     <small class="post-date">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                 </div>
-            </section>
-
-            <!-- Link back to the user's blog posts page -->
+            </article>
             <div class="back-link-container">
                 <a href="{{ url_for('blog.user_profile', username=username) }}" class="back-link">Back to Blog Posts</a>
             </div>
@@ -29,4 +26,6 @@
     </div>
 </body>
 </html>
+
+
 
