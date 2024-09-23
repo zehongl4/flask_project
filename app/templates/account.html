@@ -23,7 +23,7 @@
           {% endif %}
         {% endwith %}
         
-        <main class="content-area"> 
+        <div class="main-content"> <!-- This div will align the content side by side -->
             <!-- Section for creating a new blog post -->
             <section class="new-post">
                 <form action="{{ url_for('blog.user_profile', username=username) }}" method="POST">
@@ -41,8 +41,7 @@
                 <ul>
                     {% for post in posts %}
                     <li>
-                        <!-- Show only the title of each post -->
-                        <a href="{{ url_for('blog.post_detail', username = username, post_id=post.id) }}">
+                        <a href="{{ url_for('blog.post_detail', username=username, post_id=post.id) }}">
                             <h3>{{ post.title }}</h3>
                         </a>
                         <small>Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
@@ -51,15 +50,15 @@
                     <li>No posts yet.</li>
                     {% endfor %}
                 </ul>
-                <!-- Hyperlink to view all blogs for the user -->
                 <a href="{{ url_for('blog.all_posts', username=username) }}" class="view-all-blogs">
                     View All Blogs
                 </a>
             </section>
-        </main>
+        </div>
     </div>
 </body>
 </html>
+
 
 
 

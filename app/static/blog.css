@@ -1,42 +1,48 @@
-body {
+/* Body and HTML */
+body, html {
     margin: 0;
     padding: 0;
-    background: url(https://images.pexels.com/photos/2108709/pexels-photo-2108709.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500) no-repeat center center fixed;
+    height: 100%; /* Full height of the viewport */
+    background: url('https://images.pexels.com/photos/2108709/pexels-photo-2108709.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500') no-repeat center center fixed;
     background-size: cover;
     font-family: 'Arial', sans-serif;
     color: #FFF;
+    overflow-y: auto; /* Allows vertical scrolling */
 }
 
+/* Main container */
 .container {
-    width: 90%;
+    display: flex;
+    flex-direction: column; /* Stacks children vertically by default */
+    align-items: center; /* Centers children horizontally */
+    justify-content: center; /* Centers children vertically */
+    width: 100%;
     max-width: 1200px;
-    height: auto;
+    margin: auto; /* Centers the container in the available horizontal space */
+    padding: 20px;
     background: rgba(0, 0, 0, 0.75);
     border-radius: 20px;
-    color: white;
-    padding: 20px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    overflow: hidden; /* Hides any overflow */
 }
 
+/* Content area which contains new post and blog posts */
 .content-area {
     display: flex;
+    flex-direction: row; /* Layout children side by side */
     width: 100%;
     align-items: flex-start;
+    justify-content: space-between; /* Evenly spaces the children */
 }
 
+/* Styling for new post and blog posts sections */
 .new-post, .blog-posts {
-    width: 50%;
-    padding: 10px;
+    flex: 1; /* Allows each section to take equal space */
+    margin: 10px;
+    padding: 20px;
     box-sizing: border-box;
 }
 
+/* Styles for input fields and textarea in new post section */
 .new-post input[type="text"], .new-post textarea {
     width: 100%;
     padding: 8px;
@@ -51,6 +57,7 @@ body {
     height: 200px;
 }
 
+/* Button styling */
 button {
     width: 100%;
     padding: 12px;
@@ -59,12 +66,14 @@ button {
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
 }
 
 button:hover {
     background: #FF6347;
 }
 
+/* Styling for blog posts list */
 .blog-posts ul {
     list-style-type: none;
     padding: 0;
@@ -79,8 +88,8 @@ button:hover {
     color: #FF4500;
 }
 
-/* General style for flash messages */
-.alert {
+/* Alerts and success messages */
+.alert, .alert-success {
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid transparent;
@@ -90,14 +99,13 @@ button:hover {
     margin: 0 auto;
 }
 
-/* Specific style for success messages to appear in red */
 .alert-success {
     color: #FFF;
     background-color: #FF6347;
     border-color: #FF4500;
 }
 
-/* Post Detail Page Specific Styles */
+/* Post titles and content styling */
 .post-title {
     font-size: 3em;
     margin-bottom: 20px;
@@ -106,28 +114,30 @@ button:hover {
 }
 
 .post-content {
-    text-align: left;
+    text-align: justify;
     font-size: 1.5em;
-    line-height: 1.6;
+    line-height: 1.8;
     margin-bottom: 30px;
     color: #F5F5F5;
+    white-space: pre-wrap; /* Preserves spaces and line breaks */
 }
 
 .post-date {
-    font-size: 0.6em; /* Made the "posted on" text smaller */
+    font-size: 0.6em;
     color: #CCC;
 }
 
-/* Positioned Back link at the upper right of the container */
+/* Back link container */
 .back-link-container {
     position: absolute;
     top: 20px;
     right: 30px;
 }
 
+/* Back link styling */
 .back-link {
     font-size: 1.2em;
-    color: #FF4500; /* Changed back-link color to red */
+    color: #FF4500;
     text-decoration: none;
     background-color: rgba(0, 0, 0, 0.5);
     padding: 10px 20px;
@@ -140,11 +150,17 @@ button:hover {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Ensure that for post detail page, the container is properly styled */
-.post-detail-container {
-    max-width: 800px;
-    margin-top: 100px;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .content-area {
+        flex-direction: column; /* Stacks sections vertically on smaller screens */
+    }
 }
+
+
+
+
+
 
 
 
