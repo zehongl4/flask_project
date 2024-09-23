@@ -39,6 +39,7 @@ class UserDAO:
         try:
             with conn.cursor() as cursor:
                 # Create Users table
+
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS users (
                         username VARCHAR(255) PRIMARY KEY,
@@ -53,7 +54,7 @@ class UserDAO:
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         username VARCHAR(255) NOT NULL,
                         title VARCHAR(255) NOT NULL,
-                        content TEXT NOT NULL,
+                        content VARCHAR(21844) NOT NULL,
                         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
@@ -93,6 +94,7 @@ class UserDAO:
         
 
     def get_user_password(self, username):
+        print(self.__query_data("SELECT password FROM users WHERE username = %s", (username,)))
         return self.__query_data("SELECT password FROM users WHERE username = %s", (username,))
 
     def check_user_exist(self, username):

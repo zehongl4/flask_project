@@ -34,7 +34,7 @@ from app.blog.routes import blog as blog_blueprint
 app.register_blueprint(blog_blueprint, url_prefix='/blog')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port = 8000, debug=True)
 
 
 
