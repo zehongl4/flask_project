@@ -27,6 +27,10 @@ app.register_blueprint(auth_blueprint, url_prefix='/auth')
 def home():
     return redirect(url_for('auth.login'))
 
+@app.route('/health')
+def health_check():
+    return "OK", 200
+
 # # Additional blueprints can be registered here
 # from app.routes import main as main_blueprint
 # app.register_blueprint(main_blueprint)
@@ -34,7 +38,7 @@ from app.blog.routes import blog as blog_blueprint
 app.register_blueprint(blog_blueprint, url_prefix='/blog')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port = 8000, debug=True)
 
 
 
