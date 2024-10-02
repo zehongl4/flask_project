@@ -10,6 +10,11 @@
     <div class="container">
         <header>
             <h1>Welcome, {{ username }}!</h1>
+            <!-- Logout Button -->
+            <form action="{{ url_for('auth.logout') }}" method="post" style="display: inline;">
+                {{ form.hidden_tag() }}  <!-- This will include a CSRF token -->
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
         </header>
 
         <!-- Flash messages display area -->

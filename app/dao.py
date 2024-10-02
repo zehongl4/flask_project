@@ -6,116 +6,127 @@ Created on Fri Sep  6 19:00:39 2024
 @author: xuan
 """
 
-import pymysql
-import os
+from app.models import User, Blog  # Import your models
+from app.extensions import db  # Import db from extensions where it is initialized
 
 class UserDAO:
-    def __init__(self):
-        # Use environment variables to determine the database settings
-        self.host = os.getenv("DB_HOST")
-        self.port = int(os.getenv("DB_PORT"))
-        self.user = os.getenv("DB_USER", "xuan")
-        self.password = os.getenv("DB_PASSWORD")
-        self.database = os.getenv("DB_NAME")
-        self.charset = "utf8"
-
-        # Initialize the database if not in local development mode
-        self.initialize_database()
-        pass
-
-    def conn_mysql(self):
-        # Attempt to connect to the MySQL server
-        return pymysql.connect(
-            host=self.host,
-            port=self.port,
-            user=self.user,
-            password=self.password,
-            database=self.database,
-            charset=self.charset
-        )
-
-    def initialize_database(self):
-        conn = self.conn_mysql()
-        try:
-            with conn.cursor() as cursor:
-                # Create Users table
-
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS users (
-                        username VARCHAR(255) PRIMARY KEY,
-                        password VARCHAR(255) NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-                    );
-                """)
-
-                # Create Posts table with a foreign key referencing the Users table
-                cursor.execute("""
-                    CREATE TABLE IF NOT EXISTS blogs (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        username VARCHAR(255) NOT NULL,
-                        title VARCHAR(255) NOT NULL,
-                        content VARCHAR(21844) NOT NULL,
-                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
-                    );
-                """)
-
-                # Commit the changes
-                conn.commit()
-        except pymysql.Error as e:
-            print(f"An error occurred while initializing the database: {e}")
-        finally:
-            conn.close()
-
-    def __query_data(self, sql, params=None):
-        conn = self.conn_mysql()
-        try:
-            with conn.cursor(pymysql.cursors.DictCursor) as cursor:
-                cursor.execute(sql, params)
-                return cursor.fetchall()
-        except pymysql.Error as error:
-            print(f"Database error: {error}")
-            return None
-        finally:
-            conn.close()
-
-    def __insert_or_update_data(self, sql, params=None):
-        conn = self.conn_mysql()
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(sql, params)
-                conn.commit()
-        except pymysql.Error as error:
-            print(f"Database error: {error}")
-            conn.rollback()
-        finally:
-            conn.close()
-        
-
-    def get_user_password(self, username):
-        print(self.__query_data("SELECT password FROM users WHERE username = %s", (username,)))
-        return self.__query_data("SELECT password FROM users WHERE username = %s", (username,))
-
-    def check_user_exist(self, username):
-        result = self.__query_data("SELECT password FROM users WHERE username = %s", (username,))
-        print(result)
-        return result != ()  # Check if the result is not empty
+    def get_user(self, username):
+        """Get a user by their username."""
+        return User.query.filter_by(username=username).first()
 
     def add_user(self, username, password):
-        self.__insert_or_update_data("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+        """Add a new user to the database."""
+        new_user = User(username=username, password=password)
+        db.session.add(new_user)
+        db.session.commit()
 
     def update_password(self, username, password):
-        self.__insert_or_update_data("UPDATE users SET password = %s WHERE username = %s", (password, username))
-    
+        """Update the password for a specific user."""
+        user = User.query.filter_by(username=username).first()
+        if user:
+            user.password = password  # Make sure to hash the password before storing it
+            db.session.commit()
+            return True
+        return False
+
     def add_blog(self, username, title, content):
-        print("yyy")
-        self.__insert_or_update_data("INSERT INTO blogs (username, title, content) VALUES (%s, %s, %s)", (username, title, content))
-    
+        """Add a new blog post to the database."""
+        new_blog = Blog(username=username, title=title, content=content)
+        db.session.add(new_blog)
+        db.session.commit()
+
     def get_blogs_by_username(self, username):
-        return self.__query_data("SELECT id, username, title, created_at FROM blogs WHERE username = %s ORDER BY created_at DESC Limit 5", (username,))
-    
+        """Get the latest 5 blog posts for a specific user."""
+        return Blog.query.filter_by(username=username).order_by(Blog.created_at.desc()).limit(5).all()
+
     def get_blog_by_id(self, id):
-        return self.__query_data("SELECT title, content, created_at FROM blogs WHERE id = %s", (id,))       
+        """Get a blog post by its ID."""
+        return Blog.query.get(id)
+
     def get_user_allblogs(self, username):
-        return self.__query_data("SELECT id, username, title, created_at FROM blogs WHERE username = %s ORDER BY created_at DESC", (username,))
+        """Get all blog posts for a specific user."""
+        return Blog.query.filter_by(username=username).order_by(Blog.created_at.desc()).all()
+    
+    def delete_blog_by_id(self, post_id):
+        post = Blog.query.filter_by(id = post_id).first()
+        db.session.delete(post)
+        db.session.commit()
+    
+    def update_blog_post(self, post_id, title, content):
+        post = Blog.query.filter_by(id = post_id).first()
+        if post:
+            post.title = title
+            post.content = content
+            try:
+                # Commit the changes to the database
+                db.session.commit()
+                return True  # Return True to indicate success
+            except Exception as e:
+                # If there is any exception during the commit, rollback the session
+                db.session.rollback()
+                print(f"An error occurred: {e}")  # Log the error for debugging
+                return False  # Return False to indicate failure
+        else:
+            # Return False if no post is found with the provided `post_id`
+            print(f"No post found with ID {post_id}")
+            return False
+    def search_blogs_by_title(self, username, search_query):
+        # query for blogs where the title contains 'query'
+        blogs_with_query = Blog.query.filter(Blog.title.like(f'%{search_query}%')).all()
+        return blogs_with_query
+
+    def close(self):
+        """Not needed in Flask-SQLAlchemy because db.session is automatically handled."""
+        pass
+
+    # def __query_data(self, sql, params=None):
+    #     conn = self.conn_mysql()
+    #     try:
+    #         with conn.cursor(pymysql.cursors.DictCursor) as cursor:
+    #             cursor.execute(sql, params)
+    #             return cursor.fetchall()
+    #     except pymysql.Error as error:
+    #         print(f"Database error: {error}")
+    #         return None
+    #     finally:
+    #         conn.close()
+
+    # def __insert_or_update_data(self, sql, params=None):
+    #     conn = self.conn_mysql()
+    #     try:
+    #         with conn.cursor() as cursor:
+    #             cursor.execute(sql, params)
+    #             conn.commit()
+    #     except pymysql.Error as error:
+    #         print(f"Database error: {error}")
+    #         conn.rollback()
+    #     finally:
+    #         conn.close()
+        
+
+    # def get_user_password(self, username):
+    #     print(self.__query_data("SELECT password FROM users WHERE username = %s", (username,)))
+    #     return self.__query_data("SELECT password FROM users WHERE username = %s", (username,))
+
+    # def check_user_exist(self, username):
+    #     result = self.__query_data("SELECT password FROM users WHERE username = %s", (username,))
+    #     print(result)
+    #     return result != ()  # Check if the result is not empty
+
+    # def add_user(self, username, password):
+    #     self.__insert_or_update_data("INSERT INTO users (username, password) VALUES (%s, %s)", (username, password))
+
+    # def update_password(self, username, password):
+    #     self.__insert_or_update_data("UPDATE users SET password = %s WHERE username = %s", (password, username))
+    
+    # def add_blog(self, username, title, content):
+    #     print("yyy")
+    #     self.__insert_or_update_data("INSERT INTO blogs (username, title, content) VALUES (%s, %s, %s)", (username, title, content))
+    
+    # def get_blogs_by_username(self, username):
+    #     return self.__query_data("SELECT id, username, title, created_at FROM blogs WHERE username = %s ORDER BY created_at DESC Limit 5", (username,))
+    
+    # def get_blog_by_id(self, id):
+    #     return self.__query_data("SELECT title, content, created_at FROM blogs WHERE id = %s", (id,))       
+    # def get_user_allblogs(self, username):
+    #     return self.__query_data("SELECT id, username, title, created_at FROM blogs WHERE username = %s ORDER BY created_at DESC", (username,))

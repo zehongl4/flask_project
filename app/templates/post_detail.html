@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ post.title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="container post-detail-container">
@@ -13,19 +14,81 @@
         </header>
         <main class="content-area post-content-area">
             <article class="blog-content">
-                <div class="post-content">
-                    <!-- Use the safe filter to prevent HTML escaping -->
+                <!-- Hidden editing form -->
+                <form id="editForm" style="display:none;" class="post-form">
+                    <input type="text" id="editTitle" value="{{ post.title }}" required class="edit-input" placeholder="Title of your blog post">
+                    <textarea id="editContent" required class="edit-textarea" placeholder="Content of your blog post">{{ post.content }}</textarea>
+                    <button type="button" onclick="savePost()" class="button save-button">Save Changes</button>
+                    <button type="button" onclick="toggleEdit(false)" class="button cancel-button">Cancel</button>
+                </form>
+                <!-- Display content normally -->
+                <div id="displayContent" class="post-content">
                     <p>{{ post.content|safe }}</p>
                     <small class="post-date">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
                 </div>
             </article>
+            <div class="post-controls">
+                <!-- Delete button form with CSRF token -->
+                <form action="{{ url_for('blog.delete_post', username=post.username, post_id=post.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="button delete-button">Delete Post</button>
+                </form>
+                <button onclick="toggleEdit(true)" class="button edit-button">Edit Post</button>
+            </div>
             <div class="back-link-container">
-                <a href="{{ url_for('blog.user_profile', username=username) }}" class="back-link">Back to Blog Posts</a>
+                <a href="{{ url_for('blog.user_profile', username=post.username) }}" class="button back-link">Back to Blog Posts</a>
             </div>
         </main>
     </div>
+
+    <script>
+        function toggleEdit(editMode) {
+            const displayContent = document.getElementById('displayContent');
+            const editForm = document.getElementById('editForm');
+            displayContent.style.display = editMode ? 'none' : 'block';
+            editForm.style.display = editMode ? 'block' : 'none';
+        }
+
+        function savePost() {
+            var title = document.getElementById('editTitle').value;
+            var content = document.getElementById('editContent').value;
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch('{{ url_for("blog.update_post", username=post.username, post_id=post.id) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({title: title, content: content})
+            }).then(response => {
+                console.log(response);  // Log the response for debugging
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok. Status:', response.status);
+            })
+            .then(data => {
+                console.log('Data received:', data);  // Log the data for further debugging
+                if (data.status === 'success') {
+                    window.location.href = '{{ url_for("blog.user_profile", username=post.username) }}'; // Ensure this URL is correct
+                } else {
+                    alert('Failed to update post: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
+
+
+
+
+
+
+
 
 
 
