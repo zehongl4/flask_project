@@ -10,13 +10,19 @@ from flask import Flask, redirect, url_for, jsonify
 from .extensions import db, bcrypt, csrf, login_manager  # Import db from extensions (or wherever it is initialized)
 import os
 from .models import User
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
+print("SECRET_KEY:", os.getenv('SECRET_KEY'))
+print("DATABASE_URL:", os.getenv('DATABASE_URL'))
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['DEBUG'] = os.getenv('DEBUG') == 'True'  # Ensures the DEBUG is a boolean
 
-# Configure the app
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-random-secret-key')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///default.db')
 
 # Initialize extensions
 db.init_app(app)  # Ensure this line is present to bind db to the app instance
