@@ -8,11 +8,13 @@ Created on Fri Sep  6 19:00:39 2024
 
 from app.models import User, Blog  # Import your models
 from app.extensions import db  # Import db from extensions where it is initialized
+from sqlalchemy import func
 
 class UserDAO:
+
     def get_user(self, username):
-        """Get a user by their username."""
-        return User.query.filter_by(username=username).first()
+        """Get a user by their username with case-sensitive comparison."""
+        return User.query.filter(func.binary(User.username) == func.binary(username)).first()
 
     def add_user(self, username, password):
         """Add a new user to the database."""
@@ -22,9 +24,9 @@ class UserDAO:
 
     def update_password(self, username, password):
         """Update the password for a specific user."""
-        user = User.query.filter_by(username=username).first()
+        user = self.get_user(username)  # Use the case-sensitive get_user method
         if user:
-            user.password = password  # Make sure to hash the password before storing it
+            user.password = password # Hashing the new password
             db.session.commit()
             return True
         return False

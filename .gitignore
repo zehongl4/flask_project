@@ -1,18 +1,23 @@
+# Ignore directories created by Spyder IDE
 .spyproject/
-# Ignore all .DS_Store files
+
+# Ignore Mac OS system files
 .DS_Store
+
+# Ignore virtual environment directory
 .venv/
-# Ignore Python bytecode directories
+
+# Ignore Python bytecode
 **/__pycache__/
 __pycache__/
-
 *.pyc
-.elasticbeanstalk
 
-
-# Elastic Beanstalk Files
+# Ignore Elastic Beanstalk config except specific files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Ignore environment variables file
 .env
+
 

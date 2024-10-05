@@ -21,7 +21,6 @@ user_dao = UserDAO()
 @login_required
 def user_profile(username):
     # log in user page
-    print(username)
     form = BlogPostForm()
     if current_user.username != username:
         abort(403)  # Forbidden access
