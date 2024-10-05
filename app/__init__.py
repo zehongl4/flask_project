@@ -6,7 +6,7 @@ Created on Fri Aug 30 22:16:31 2024
 @author: xuan
 """
 
-from flask import Flask, redirect, url_for, jsonify
+from flask import Flask, redirect, url_for, jsonify, session
 from .extensions import db, bcrypt, csrf, login_manager  # Import db from extensions (or wherever it is initialized)
 import os
 from .models import User
@@ -22,6 +22,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['DEBUG'] = os.getenv('DEBUG') == 'True'  # Ensures the DEBUG is a boolean
+
+app.config['SESSION_COOKIE_NAME'] = 'your_app_session'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 
 # Initialize extensions
@@ -43,6 +47,14 @@ app.register_blueprint(auth, url_prefix='/auth')
 
 from .blog.routes import blog
 app.register_blueprint(blog, url_prefix='/blog')
+
+# Logging function for session debugging
+@app.before_request
+def before_request_logging():
+    if 'username' in session:
+        print(f"Current session user_id: {session['username']}")
+    else:
+        print("No username in session")
 
 @app.route('/health')
 def health_check():
