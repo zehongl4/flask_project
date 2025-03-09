@@ -1,85 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ post.title }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>{{ post.title }}</title>
+   <link rel="stylesheet" href="{{ url_for('static', filename='blog.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='interactions.css') }}">
+   <meta name="csrf-token" content="{{ csrf_token() }}">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <div class="container post-detail-container">
-        <header>
-            <h1 class="post-title">{{ post.title }}</h1>
-        </header>
-        <main class="content-area post-content-area">
-            <article class="blog-content">
-                <!-- Hidden editing form -->
-                <form id="editForm" style="display:none;" class="post-form">
-                    <input type="text" id="editTitle" value="{{ post.title }}" required class="edit-input" placeholder="Title of your blog post">
-                    <textarea id="editContent" required class="edit-textarea" placeholder="Content of your blog post">{{ post.content }}</textarea>
-                    <button type="button" onclick="savePost()" class="button save-button">Save Changes</button>
-                    <button type="button" onclick="toggleEdit(false)" class="button cancel-button">Cancel</button>
-                </form>
-                <!-- Display content normally -->
-                <div id="displayContent" class="post-content">
-                    <p>{{ post.content|safe }}</p>
-                    <small class="post-date">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                </div>
-            </article>
-            <div class="post-controls">
-                <!-- Delete button form with CSRF token -->
-                <form action="{{ url_for('blog.delete_post', username=post.username, post_id=post.id) }}" method="post">
+   <div class="container post-detail-container">
+       <!-- Navigation Bar -->
+       <nav class="main-nav">
+           <div class="nav-buttons">
+               <a href="{{ url_for('blog.search') }}" class="nav-button search-button">
+                   <i class="fas fa-search"></i> Search
+               </a>
+               {% if current_user.is_authenticated %}
+               <a href="{{ url_for('blog.user_profile', username=current_user.username) }}" class="nav-button account-button">
+                   <i class="fas fa-user"></i> My Account
+               </a>
+               {% else %}
+               <a href="{{ url_for('auth.session_form', next=request.path) }}" class="nav-button login-button">
+                   <i class="fas fa-sign-in-alt"></i> Login
+               </a>
+               {% endif %}
+           </div>
+       </nav>
+
+       <header>
+           <h1 class="post-title">{{ post.title }}</h1>
+           <div class="post-status">
+               {% if post.is_draft %}
+                   <span>(Draft)</span>
+               {% else %}
+                   <span>({{ 'Public' if post.is_public else 'Private' }})</span>
+               {% endif %}
+           </div>
+       </header>
+       <main class="content-area post-content-area">
+           <article class="blog-content">
+               <!-- Display content normally -->
+               <div id="displayContent" class="post-content">
+                   <p>{{ post.content|safe }}</p>
+                   <small class="post-date">Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                   <small class="post-author">By {{ post.username }}</small>
+               </div>
+           </article>
+
+           <!-- likes and Bookmark functionality -->
+           <div class="interaction-bar">
+                {% if current_user.is_authenticated %}
+                <form action="{{ url_for('api.toggle_like', post_id=post.id) }}" 
+                      class="like-form" 
+                      data-post-id="{{ post.id }}" 
+                      data-api-url="{{ url_for('api.toggle_like', post_id=post.id) }}"
+                      method="post" 
+                      style="display: inline;">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="button delete-button">Delete Post</button>
+                    <button type="submit" id="likeBtn" class="interaction-btn {% if user_liked %}liked{% endif %}">
+                        <i class="fas fa-heart"></i>
+                        <span>{{ like_count }}</span> Like
+                    </button>
                 </form>
-                <button onclick="toggleEdit(true)" class="button edit-button">Edit Post</button>
-            </div>
-            <div class="back-link-container">
-                <a href="{{ url_for('blog.user_profile', username=post.username) }}" class="button back-link">Back to Blog Posts</a>
-            </div>
-        </main>
-    </div>
+               
+                <form action="{{ url_for('api.toggle_bookmark', post_id=post.id) }}" 
+                      class="bookmark-form" 
+                      data-post-id="{{ post.id }}" 
+                      data-api-url="{{ url_for('api.toggle_bookmark', post_id=post.id) }}"
+                      method="post" 
+                      style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" id="bookmarkBtn" class="interaction-btn {% if user_bookmarked %}bookmarked{% endif %}">
+                        <i class="fas fa-bookmark"></i> Bookmark
+                    </button>
+                </form>
+               {% else %}
+               <div class="login-prompt" style="padding: 10px; background-color: #f8f9fa; border-radius: 4px; margin-bottom: 15px;">
+                <p style="margin: 0;">Please <a href="{{ url_for('auth.session_form', next=request.path) }}">log in</a> to like</p>
+                </div>
+            
+                <div class="interaction-btn disabled" style="opacity: 0.6; cursor: default;">
+                    <i class="fas fa-heart"></i>
+                    <span>{{ like_count }}</span> Likes
+                </div>
+               
+               {% endif %}
+               
+               <a href="#commentSection" class="interaction-btn">
+                   <i class="fas fa-comment"></i>
+                   <span>{{ comments|length }}</span> Comments
+               </a>
+           </div>
 
-    <script>
-        function toggleEdit(editMode) {
-            const displayContent = document.getElementById('displayContent');
-            const editForm = document.getElementById('editForm');
-            displayContent.style.display = editMode ? 'none' : 'block';
-            editForm.style.display = editMode ? 'block' : 'none';
-        }
+           <div class="post-controls" style="display: flex; flex-direction: column; margin: 20px 0;">
+            {% if current_user.is_authenticated and current_user.username == post.username %}
+                <!-- Delete button form with CSRF token -->
+                <form action="{{ url_for('blog.delete_post', post_id=post.id) }}" method="post" style="margin-bottom: 10px;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" style="background: #FF4500; color: white; width: 100%;">Delete Post</button>
+                </form>
+                
+                <!-- Edit button as a link with button styling -->
+                <a href="{{ url_for('blog.edit_post', post_id=post.id) }}" 
+                   style="background: #666; color: white; padding: 12px; border-radius: 10px; text-align: center; text-decoration: none; display: block; margin-top: 10px; font-weight: bold;">
+                    Edit Post
+                </a>
+            {% endif %}
+        </div>
 
-        function savePost() {
-            var title = document.getElementById('editTitle').value;
-            var content = document.getElementById('editContent').value;
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            fetch('{{ url_for("blog.update_post", username=post.username, post_id=post.id) }}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                },
-                body: JSON.stringify({title: title, content: content})
-            }).then(response => {
-                console.log(response);  // Log the response for debugging
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Network response was not ok. Status:', response.status);
-            })
-            .then(data => {
-                console.log('Data received:', data);  // Log the data for further debugging
-                if (data.status === 'success') {
-                    window.location.href = '{{ url_for("blog.user_profile", username=post.username) }}'; // Ensure this URL is correct
-                } else {
-                    alert('Failed to update post: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    </script>
+           <!-- Comment section -->
+           <div id="commentSection" class="comment-section">
+            <h3>Comments ({{ comments|length }})</h3>
+            
+            {% if current_user.is_authenticated %}
+            <div class="comment-form">
+                <form action="{{ url_for('api.create_comment', post_id=post.id)}}" 
+                      method="post" 
+                      data-post-id="{{ post.id }}" 
+                      data-api-url="{{ url_for('api.create_comment', post_id=post.id) }}"
+                      data-delete-url-template="{{ url_for('api.delete_comment', post_id=post.id, comment_id=0) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <textarea name="content" class="comment-input" placeholder="Write your comment..." required></textarea>
+                    <button type="submit" class="button">Submit Comment</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="login-prompt">
+                <p>Please <a href="{{ url_for('auth.session_form', next=request.path) }}">log in</a> to post a comment</p>
+            </div>
+            {% endif %}
+            
+            <div class="comment-list">
+                {% if comments %}
+                    {% for comment in comments %}
+                    <div class="comment" data-comment-id="{{ comment.id }}">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.username }}</span>
+                            <span class="comment-date">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="comment-content">{{ comment.content }}</div>
+                        <div class="comment-actions">
+                            {% if current_user.is_authenticated and (current_user.username == comment.username or current_user.username == post.username) %}
+                            <a href="#" class="comment-action comment-action-delete" 
+                               data-comment-id="{{ comment.id }}"
+                               data-api-url="{{ url_for('api.delete_comment', post_id=post.id, comment_id=comment.id) }}">Delete</a>
+                            {% endif %}
+                            
+                            {% if current_user.is_authenticated %}
+                            <a href="#commentSection" 
+                               class="comment-action" 
+                               onclick="document.querySelector('.comment-input').value = '@{{ comment.username }} '; document.querySelector('.comment-input').focus();">
+                                Reply
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No comments yet</p>
+                {% endif %}
+            </div>
+        </div>
+       </main>
+   </div>
+
+   <!-- Include the interactions JavaScript -->
+   <script src="{{ url_for('static', filename='js/blog-interactions.js') }}"></script>
 </body>
 </html>
 

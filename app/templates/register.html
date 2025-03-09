@@ -13,7 +13,7 @@
         {% for message in get_flashed_messages() %}
             <p style="color: red;">{{ message }}</p>
         {% endfor %}
-        <form action="{{ url_for('auth.register') }}" method="POST">
+        <form action="{{ url_for('auth.create_user') }}" method="POST">
             {{ form.hidden_tag() }}  <!-- This adds the CSRF token -->
 
             <p>User Name</p>
@@ -22,19 +22,26 @@
                 <span style="color: red;">{{ error }}</span>
             {% endfor %}
 
+            <p>Email</p>
+            <input class="pas-text" type="text" name="email" placeholder="Enter Email" value="{{ form.email.data if form.email.data else '' }}" />
+            {% for error in form.email.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+
             <p>Password</p>
-            <input class="pas-text" type="password" name="password" placeholder="Enter Password" value="{{ form.username.data if form.username.data else '' }}" />
+            <input class="pas-text" type="password" name="password" placeholder="Enter Password" />
             {% for error in form.password.errors %}
                 <span style="color: red;">{{ error }}</span>
             {% endfor %}
 
             <p>Confirm Password</p>
-            <input class="pas-text" type="password" name="confirm" placeholder="Confirm Password" value="{{ form.username.data if form.username.data else '' }}"/>
+            <input class="pas-text" type="password" name="confirm" placeholder="Confirm Password" />
             {% for error in form.confirm.errors %}
                 <span style="color: red;">{{ error }}</span>
             {% endfor %}
 
             <input class="sub-text" type="submit" value="Register" />
+            <a href="{{ url_for('auth.session_form') }}">Already have an account? Log in</a>
         </form>
     </div>
 </body>
